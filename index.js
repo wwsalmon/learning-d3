@@ -1,40 +1,41 @@
-var heights = [1.7, 1.4, 1.9, 2.5, 3.0];
+var width = 1500;
+var height = 700;
+var leftMar = 32;
 
-var svgH = 500, svgW = 1000;
-var topBuffer = 50;
-var padding = 5;
-var barW = svgW / heights.length;
-var scaleH = (svgH - topBuffer) / Math.max(...heights)
+var data = [
+  {"date": new Date("January 1, 2018"), "player": "Kronovi", "type": "leave"},
+  {"date": new Date("June 1, 2018")},
+  {"date": new Date("December 31, 2018")}
+]
 
-var svg = d3.select('svg')
-  .attr('width',svgW)
-  .attr('height',svgH)
-  .attr('class','barchart');
+var x_scale = d3.scaleTime()
+  .domain(
+    d3.extent(data,function(d){
+      return d;
+    }))
+  .range([0, width - 100]);
 
-var bar = svg.selectAll('rect')
-  .data(heights)
+var x_axis = d3.axisBottom()
+  .scale(x_scale)
+  .ticks(20)
+
+var svg = d3.select("svg")
+  .attr("width",width)
+  .attr("height", height)
+  
+
+svg.append("g")
+  .call(x_axis)
+  .attr("transform","translate(" + leftMar + ",80)")
+
+svg.selectAll("circle")
+  .data(data)
   .enter()
-  .append('rect')
-  .attr('height', function(d){
-    return scaleH * d;
+  .append("circle")
+  .attr("r", 10)
+  .attr("fill", "red")
+  .attr("cx", function (d) {
+    return x_scale(d) + leftMar
   })
-  .attr('width', barW - padding)
-  .attr('transform', function(d,i){
-    var transA = [barW * i, svgH - scaleH * d];
-    return "translate(" + transA + ")";
-  });
-
-var text = svg.selectAll('text')
-  .data(heights)
-  .enter()
-  .append('text')
-  .text(function(d){
-    return d;
-  })
-  .attr("x", function(d,i){
-    return barW * i + barW * 0.5;
-  })
-  .attr("y", function(d){
-    return svgH - scaleH * d - 10;
-  })
-  .attr("fill", "#000000");
+  .attr("cy", 10);
+  
