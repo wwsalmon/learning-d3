@@ -103,30 +103,31 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
             var point = { x: x(d[xvar]), y: y(d[yvar]) };
             var onFocus = function () {
                 makeToolTip(d,d3.event.pageX,d3.event.pageY);
-                d3.select("#" + id)
-                    .attr("fill", "blue");
+                startHover(id);
+                // d3.select("#" + id)
+                    // .attr("fill", "blue");
             };
             var onFocusLost = function () {
                 hideToolTip();
-                d3.select("#" + id)
-                    .attr("fill", "black");
+                endHover(id);
+                // d3.select("#" + id)
+                    // .attr("fill", "black");
             };
-            label_array.push({ x: point.x, y: point.y, name: d["thing"], width: 0.0, height: 0.0, onFocus: onFocus, onFocusLost: onFocusLost });
+            label_array.push({ x: point.x, y: point.y, name: d["thing"], width: 0.0, height: 0.0, onFocus: onFocus, onFocusLost: onFocusLost, id: id });
             anchor_array.push({ x: point.x, y: point.y, r: z(d[zvar]) });
             return id;
         })
         .attr("cx", (d) => x(d[xvar]))
         .attr("cy", (d) => y(d[yvar]))
         .attr("r", (d) => z(d[zvar]))
-        .on("mouseover", (d) => {
-            makeToolTip(d,d3.event.pageX,d3.event.pageY);
-        })
+        .on("mouseover", overCircle)
+        // .on("mouseover", (d) => {
+        //     makeToolTip(d,d3.event.pageX,d3.event.pageY);
+        // })
         .on("mousemove", () => {
             moveToolTip(d3.event.pageX,d3.event.pageY);
         })
-        .on("mouseout", () => {
-            hideToolTip();
-        });
+        .on("mouseout", leaveCircle);
 
     // code from https://jsfiddle.net/s3logic/7cw1ddn2/
 
@@ -136,16 +137,15 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .append("text")
         .attr("class", "item-label")
         .text((d) => d.name)
+        .attr("id", (d) => d.id)
         .attr("x", (d) => d.x)
         .attr("y", (d) => d.y)
         .attr("fill", "black")
         .on("mouseover", function (d) {
-            d3.select(this).attr("fill", "blue");
             d.onFocus();
         })
         .on("mousemove", () => moveToolTip(d3.event.pageX,d3.event.pageY))
         .on("mouseout", function (d) {
-            d3.select(this).attr("fill", "black");
             d.onFocusLost();
         });
     
@@ -197,6 +197,24 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
     //         .text((d) => d["thing"])
     //         .classed('item-label', true);
 });
+
+function overCircle(d){
+    startHover(this.id);
+    makeToolTip(d,d3.event.pageX,d3.event.pageY);
+}
+
+function leaveCircle(d){
+    endHover(this.id);
+    hideToolTip();
+}
+
+function startHover(id){
+    d3.selectAll("#" + id).attr("fill", "blue");
+}
+
+function endHover(id){
+    d3.selectAll("#" + id).attr("fill", "black");
+}
 
 function getText(cat, num){
     if (cat == 'achieve'){
