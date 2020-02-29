@@ -7,6 +7,48 @@ var xvar = "Highest Level of Achievement";
 var yvar = "Current Engagement";
 var zvar = "Current Interest";
 
+var legend = {
+    achieve: {
+        0: "No knowledge",
+        1: "Cursory knowledge",
+        2: "Inbetween",
+        3: "Dabbling",
+        4: "Learning",
+        5: "Substantial investment",
+        6: "Proficiency",
+        7: "Excellence",
+        8: "Local recognition/accomplishment",
+        9: "Inbetween",
+        10: "Real recognition"
+    },
+    engage: {
+        0: "No thought",
+        1: "Occassional interaction",
+        2: "Inbetween",
+        3: "Dabbling",
+        4: "Earnestly trying",
+        5: "Hobby",
+        6: "Major pursuit",
+        7: "Inbetween",
+        8: "All free time",
+        9: "Inbetween",
+        10: "Ben Platt"
+    },
+    interest: {
+        0: "No thought",
+        1: "Occassional interaction",
+        2: "Inbetween",
+        3: "Dabbling",
+        4: "Earnestly trying",
+        5: "Hobby",
+        6: "Major pursuit",
+        7: "Inbetween",
+        8: "All free time",
+        9: "Inbetween",
+        10: "Ben Platt"
+    }
+};
+
 var svg = d3.select("body").select("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -81,12 +123,15 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
                 .duration(200)
                 .style("opacity", "0.8")
                 .style("display", "block");
-            tooltip.html(
-                "<p>" + d["thing"] + "</p>" +
-                "<p>Highest Level of Achievement: " + d["Highest Level of Achievement"] + "</p>" +
-                "<p>Current Engagement: " + d["Current Engagement"] + "</p>" +
-                "<p>Current Interest: " + d["Current Interest"] + "</p>"
-            )
+            tooltip.html(() => {
+                var achieveNum = d["Highest Level of Achievement"];
+                var engageNum = d["Current Engagement"];
+                var interestNum = d["Current Interest"];
+                return "<p>" + d["thing"] + "</p>" +
+                "<p>" + getText("achieve", achieveNum) + "</p>" +
+                "<p>" + getText("engage", engageNum) + "</p>" +
+                "<p>" + getText("interest", interestNum) + "</p>";
+            })
                 .style("left", (d3.event.pageX + 32) + "px")
                 .style("top", (d3.event.pageY) + "px");
         })
@@ -141,7 +186,7 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .anchor(anchor_array)
         .width(width)
         .height(height)
-        .start(200);
+        .start(50);
 
     labels
         .transition()
@@ -165,3 +210,26 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
     //         .text((d) => d["thing"])
     //         .classed('item-label', true);
 });
+
+function getText(cat, num){
+    if (cat == 'achieve'){
+        catstring = "Highest Level of Achievement: ";
+    }
+    else if (cat == 'engage'){
+        catstring = "Current Engagement: ";
+    }
+    else if (cat == 'interest'){
+        catstring = "Current Interest: ";
+    }
+
+    if (Number.isInteger(num)){
+        numstring = num + ", " + legend[cat][num];
+    }
+    else{
+        numLow = Math.floor(num);
+        numHigh = Math.ceil(num);
+        numstring = num + ", " + legend[cat][numLow] + "/" + legend[cat][numHigh];
+    }
+
+    return catstring + numstring;
+}
