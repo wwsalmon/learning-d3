@@ -260,10 +260,17 @@ function makeToolTip(thisItem, mouseX, mouseY){
         var achieveNum = thisItem["Highest Level of Achievement"];
         var engageNum = thisItem["Current Engagement"];
         var interestNum = thisItem["Current Interest"];
+        var notes = thisItem["Notes"];
+        if (notes !== ""){
+            var notesText = "<p>" + thisItem["Notes"] + "</p>";
+        }
+        else{
+            var notesText = "";
+        }
         return "<p>" + thisItem["thing"] + "</p>" +
             "<p>" + getText("achieve", achieveNum) + "</p>" +
             "<p>" + getText("engage", engageNum) + "</p>" +
-            "<p>" + getText("interest", interestNum) + "</p>";
+            "<p>" + getText("interest", interestNum) + "</p>" + notesText;
     });
     moveToolTip(mouseX, mouseY);
 }
