@@ -1,0 +1,19 @@
+body{
+    font-family: sans-serif;
+}
+
+circle, text.item-label{
+    opacity: 0.4;
+}
+
+text.item-label{
+    font-size: 6px;
+}
+
+div.tooltip{
+    padding: 8px;
+    position: absolute;
+    background-color: #000;
+    color: #fff;
+    z-index: 5;
+}
