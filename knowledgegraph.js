@@ -55,6 +55,10 @@ var svg = d3.select("body").select("svg")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
 d3.csv("/data/feb-thingsido.csv").then(function(data){
     var x = d3.scaleLinear()
         .domain([0,10])
@@ -87,10 +91,6 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .domain([0,10])
         .range([4,64]);
 
-    var tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-
     var label_array = [];
     var anchor_array = [];
 
@@ -99,17 +99,17 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .enter()
         .append("circle")
         .attr("id", (d) => {
-            var id = "item-" + d["thing"].replace(/ |\.|\//g, "_");
+            var id = "item-" + d["thing"].replace(/ |\.|\/|\(|\)/g, "_");
             var point = { x: x(d[xvar]), y: y(d[yvar]) };
             var onFocus = function () {
+                makeToolTip(d,d3.event.pageX,d3.event.pageY);
                 d3.select("#" + id)
-                    .attr("stroke", "blue")
-                    .attr("stroke-width", "2");
+                    .attr("fill", "blue");
             };
             var onFocusLost = function () {
+                hideToolTip();
                 d3.select("#" + id)
-                    .attr("stroke", "none")
-                    .attr("stroke-width", "0");
+                    .attr("fill", "black");
             };
             label_array.push({ x: point.x, y: point.y, name: d["thing"], width: 0.0, height: 0.0, onFocus: onFocus, onFocusLost: onFocusLost });
             anchor_array.push({ x: point.x, y: point.y, r: z(d[zvar]) });
@@ -119,27 +119,13 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .attr("cy", (d) => y(d[yvar]))
         .attr("r", (d) => z(d[zvar]))
         .on("mouseover", (d) => {
-            tooltip.transition()
-                .duration(200)
-                .style("opacity", "0.8")
-                .style("display", "block");
-            tooltip.html(() => {
-                var achieveNum = d["Highest Level of Achievement"];
-                var engageNum = d["Current Engagement"];
-                var interestNum = d["Current Interest"];
-                return "<p>" + d["thing"] + "</p>" +
-                "<p>" + getText("achieve", achieveNum) + "</p>" +
-                "<p>" + getText("engage", engageNum) + "</p>" +
-                "<p>" + getText("interest", interestNum) + "</p>";
-            })
-                .style("left", (d3.event.pageX + 32) + "px")
-                .style("top", (d3.event.pageY) + "px");
+            makeToolTip(d,d3.event.pageX,d3.event.pageY);
+        })
+        .on("mousemove", () => {
+            moveToolTip(d3.event.pageX,d3.event.pageY);
         })
         .on("mouseout", () => {
-            tooltip.transition()
-                .duration(200)
-                .style("opacity", "0")
-                .on("end", () => tooltip.style("display", "none"))
+            hideToolTip();
         });
 
     // code from https://jsfiddle.net/s3logic/7cw1ddn2/
@@ -157,6 +143,7 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
             d3.select(this).attr("fill", "blue");
             d.onFocus();
         })
+        .on("mousemove", () => moveToolTip(d3.event.pageX,d3.event.pageY))
         .on("mouseout", function (d) {
             d3.select(this).attr("fill", "black");
             d.onFocusLost();
@@ -232,4 +219,33 @@ function getText(cat, num){
     }
 
     return catstring + numstring;
+}
+
+function makeToolTip(thisItem, mouseX, mouseY){
+    tooltip.transition()
+        .duration(200)
+        .style("opacity", "0.8")
+        .style("display", "block");
+    tooltip.html(() => {
+        var achieveNum = thisItem["Highest Level of Achievement"];
+        var engageNum = thisItem["Current Engagement"];
+        var interestNum = thisItem["Current Interest"];
+        return "<p>" + thisItem["thing"] + "</p>" +
+            "<p>" + getText("achieve", achieveNum) + "</p>" +
+            "<p>" + getText("engage", engageNum) + "</p>" +
+            "<p>" + getText("interest", interestNum) + "</p>";
+    });
+    moveToolTip(mouseX, mouseY);
+}
+
+function moveToolTip(mouseX, mouseY) {
+    tooltip.style("left", (mouseX + 32) + "px")
+        .style("top", (mouseY) + "px");
+}
+
+function hideToolTip(){
+    tooltip.transition()
+        .duration(200)
+        .style("opacity", "0")
+        .on("end", () => tooltip.style("display", "none"));
 }
