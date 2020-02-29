@@ -2,7 +2,7 @@ body{
     font-family: sans-serif;
 }
 
-circle, text.item-label{
+circle, text.item-label, line.link{
     opacity: 0.4;
 }
 

@@ -60,6 +60,9 @@ var tooltip = d3.select("body").append("div")
     .style("opacity", 0);
 
 d3.csv("/data/feb-thingsido.csv").then(function(data){
+
+    // X AXIS
+
     var x = d3.scaleLinear()
         .domain([0,10])
         .range([0, width]);
@@ -72,6 +75,8 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .attr("transform", "translate(" + (width / 2) + "," + (height + margin.top + margin.bottom / 2) + ")")
         .style("text-anchor", "middle")
         .text("Highest Level of Achievement");
+
+    // Y AXIS
 
     var y = d3.scaleLinear()
         .domain([10,0])
@@ -87,12 +92,18 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .style("text-anchor", "middle")
         .text("Current Engagement");
 
+    // RADIUS SCALE
+
     var z = d3.scaleLinear()
         .domain([0,10])
         .range([4,64]);
 
+    // SETUP
+
     var label_array = [];
     var anchor_array = [];
+
+    // CIRCLES
 
     svg.selectAll("circle")
         .data(data)
@@ -101,18 +112,18 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .attr("id", (d) => {
             var id = "item-" + d["thing"].replace(/ |\.|\/|\(|\)/g, "_");
             var point = { x: x(d[xvar]), y: y(d[yvar]) };
+
+            // EVENTS FOR LABELS
+
             var onFocus = function () {
                 makeToolTip(d,d3.event.pageX,d3.event.pageY);
                 startHover(id);
-                // d3.select("#" + id)
-                    // .attr("fill", "blue");
             };
             var onFocusLost = function () {
                 hideToolTip();
                 endHover(id);
-                // d3.select("#" + id)
-                    // .attr("fill", "black");
             };
+
             label_array.push({ x: point.x, y: point.y, name: d["thing"], width: 0.0, height: 0.0, onFocus: onFocus, onFocusLost: onFocusLost, id: id });
             anchor_array.push({ x: point.x, y: point.y, r: z(d[zvar]) });
             return id;
@@ -120,16 +131,15 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .attr("cx", (d) => x(d[xvar]))
         .attr("cy", (d) => y(d[yvar]))
         .attr("r", (d) => z(d[zvar]))
+        .attr("stroke-width", 0)
+        // MOUSE EVENTS
         .on("mouseover", overCircle)
-        // .on("mouseover", (d) => {
-        //     makeToolTip(d,d3.event.pageX,d3.event.pageY);
-        // })
         .on("mousemove", () => {
             moveToolTip(d3.event.pageX,d3.event.pageY);
         })
         .on("mouseout", leaveCircle);
 
-    // code from https://jsfiddle.net/s3logic/7cw1ddn2/
+    // LABELS
 
     var labels = svg.selectAll("whatever")
         .data(label_array)
@@ -140,7 +150,9 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .attr("id", (d) => d.id)
         .attr("x", (d) => d.x)
         .attr("y", (d) => d.y)
+        .attr("stroke-width",0)
         .attr("fill", "black")
+        // MOUSE EVENTS
         .on("mouseover", function (d) {
             d.onFocus();
         })
@@ -148,18 +160,23 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .on("mouseout", function (d) {
             d.onFocusLost();
         });
+
+    // LINKS
     
     var links = svg.selectAll(".link")
         .data(label_array)
         .enter()
         .append("line")
         .attr("class", "link")
+        .attr("id", (d) => d.id)
         .attr("x1", (d) => d.x)
         .attr("y1", (d) => d.y)
         .attr("x2", (d) => d.x)
         .attr("y2", (d) => d.y)
         .attr("stroke-width", 0.6)
-        .attr("stroke", "gray");
+        .attr("stroke", "black");
+
+    // REARRANGE LABELS/LINKS
     
     var index = 0;
     labels.each(function () {
@@ -187,16 +204,9 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .attr("x2", function (d) { return (d.x); })
         .attr("y2", function (d) { return (d.y); });
 
-    // svg.selectAll("whatever")
-    //     .data(data)
-    //     .enter()
-    //     .append("text")
-    //         .attr("x", (d) => x(d[xvar]) + z(d[zvar]) + textPadding)
-    //         .attr("y", (d) => y(d[yvar]))
-    //         .attr("alignment-baseline", "middle")
-    //         .text((d) => d["thing"])
-    //         .classed('item-label', true);
 });
+
+// MOUSE EVENT FUNCTIONS
 
 function overCircle(d){
     startHover(this.id);
@@ -209,12 +219,14 @@ function leaveCircle(d){
 }
 
 function startHover(id){
-    d3.selectAll("#" + id).attr("fill", "blue");
+    d3.selectAll("#" + id).attr("fill", "blue").attr("stroke", "blue");
 }
 
 function endHover(id){
-    d3.selectAll("#" + id).attr("fill", "black");
+    d3.selectAll("#" + id).attr("fill", "black").attr("stroke", "black");
 }
+
+// TOOLTIP FUNCTIONS
 
 function getText(cat, num){
     if (cat == 'achieve'){
