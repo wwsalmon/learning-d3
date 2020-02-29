@@ -99,7 +99,7 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .enter()
         .append("circle")
         .attr("id", (d) => {
-            var id = "item-" + d["thing"].replace(/ /g, "_");
+            var id = "item-" + d["thing"].replace(/ |\.|\//g, "_");
             var point = { x: x(d[xvar]), y: y(d[yvar]) };
             var onFocus = function () {
                 d3.select("#" + id)
@@ -186,7 +186,7 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .anchor(anchor_array)
         .width(width)
         .height(height)
-        .start(50);
+        .start(200);
 
     labels
         .transition()
@@ -222,7 +222,7 @@ function getText(cat, num){
         catstring = "Current Interest: ";
     }
 
-    if (Number.isInteger(num)){
+    if (num % 1 == 0){
         numstring = num + ", " + legend[cat][num];
     }
     else{
