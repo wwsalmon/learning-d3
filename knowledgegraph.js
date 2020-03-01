@@ -68,8 +68,12 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .range([0, width]);
     
     svg.append("g")
+        .attr("class", "xaxis")
         .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x)
+            .ticks(10)
+            .tickSize(-height)
+        );
 
     svg.append("text")
         .attr("transform", "translate(" + (width / 2) + "," + (height + margin.top + margin.bottom / 2) + ")")
@@ -83,7 +87,11 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .range([0, height]);
 
     svg.append("g")
-        .call(d3.axisLeft(y));
+        .attr("class","yaxis")
+        .call(d3.axisLeft(y)
+            .ticks(10)
+            .tickSize(-width)
+        );
 
     svg.append("text")
         .attr("transform", "rotate(-90)")
@@ -91,6 +99,32 @@ d3.csv("/data/feb-thingsido.csv").then(function(data){
         .attr("y", 0 - margin.left / 2)
         .style("text-anchor", "middle")
         .text("Current Engagement");
+
+    // GRIDLINES
+
+    // function make_x_gridlines(){
+    //     return d3.axisBottom(x)
+    //         .ticks(10)
+    // }
+
+    // function make_y_gridlines(){
+    //     return d3.axisLeft(y)
+    //         .ticks(10)
+    // }
+
+    // svg.append("g")
+    //     .attr("class","grid")
+    //     .call(make_x_gridlines()
+    //         .tickSize(height)
+    //         .tickFormat("")
+    //     )
+
+    // svg.append("g")
+    //     .attr("class","grid")
+    //     .call(make_y_gridlines()
+    //         .tickSize(-width)
+    //         .tickFormat("")
+    //     )
 
     // RADIUS SCALE
 
@@ -267,7 +301,7 @@ function makeToolTip(thisItem, mouseX, mouseY){
         else{
             var notesText = "";
         }
-        return "<p>" + thisItem["thing"] + "</p>" +
+        return "<div class='item-title'><span>" + thisItem["thing"] + "</span></div>" +
             "<p>" + getText("achieve", achieveNum) + "</p>" +
             "<p>" + getText("engage", engageNum) + "</p>" +
             "<p>" + getText("interest", interestNum) + "</p>" + notesText;

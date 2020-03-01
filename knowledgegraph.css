@@ -13,3 +13,15 @@ div.tooltip{
     color: #fff;
     z-index: 5;
 }
+
+.item-title{
+    font-weight: 700;
+}
+
+.domain{
+    display: none;
+}
+
+.xaxis line, .yaxis line{
+    opacity: 0.05;
+}
